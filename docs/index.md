@@ -3,7 +3,7 @@
 ## Introduction
 In this report, we will show our approach in exploring and predicting final leaderboard placements in PlayerUnknown’s Battlegrounds matches. We first give background information on the video game and context for the problem. We do exploratory data analysis. Afterwards, we perform feature engineering, creating more insightful features that better predict the target variable. We try a variety of models (simple to complex) for predictions: Linear Regression, Random Forests, Multilayer Perceptrons, and Gradient Boosting LightGBM. We discuss postprocessing of our data to decrease our error. We also discuss the interesting discoveries we made when solving this problem. Finally, we discuss future steps to improve our models.
 
-Code Repository: <https://github.com/Yuan-Chang-UT/Data-Science-Lab-Final-Project>
+Code Repository: <https://github.com/CliveUnger/EE460J_Final_Project_PUBGt>
 
 ### Context
 PlayerUnknown's Battlegrounds (PUBG) is a battle royale survival game with the goal of being the last player standing. Up to 100 players are dropped onto an island empty-handed with a variety of game modes that can allow squads of up to 4 people. In the game, a player can find and use a variety of weapons, items, and vehicles. Players must also avoid the shrinking “circle”, which pushes players closer together on the map.
@@ -55,7 +55,7 @@ Some features like matchId is only useful for feature extraction such as for fin
 ### Exploratory Data Analysis
 The first thing we explored was how common features influenced the win percentage placement (our target variable). Some correlated features that we found were number of boosts and number of heals in addition to others. As shown below by the increasing mean of win percentage placement, we found that kill count was correlated with our target variable, which makes sense because more kills usually means a player is better skilled and will rank closer to the top.
 
-![kills_chart](images/image3.png)
+![kills_chart](images/image11.png)
 
 When trying to identify cheaters, we looked at distributions of some features so we could get a better understanding for what anomalies in the data looked like. For example, most players picked up between zero and eight weapons in a match, as can be seen by the distribution below. However, when we found players that picked up 40+ weapons, we attributed that to them either cheating or playing a custom game. To better confirm if a player was cheating, we would have to look at other features in addition to weapons picked up.
 
@@ -63,14 +63,15 @@ When trying to identify cheaters, we looked at distributions of some features so
 
 Another interesting finding was the distribution of the match duration, as it is bimodal shown below. We tried to discover what caused this phenomenon, but could not identify any single influence. For example we looked at how different game modes changed the distribution, but it had little effect. We also tried looking at third person vs first person perspective modes in addition to how many players are in a match, but nothing significantly revealed new insight.
 
+<p align="center">
 ![match_duration](images/image15.png)
-
+</p>
 
 We also performed PCA on the training data after dropping unnecessary features (such as match duration, group id, match id, and match type). It produced some interesting clustering results which we tried to understand by grouping the information. For the graphs with the red, blue, and green dots, we split up the data into squad, duo, and single game modes respectively. For the black to blue color gradient plot, the closer the point is to black, the lower the win percentage, and the closer the point is to blue, the higher the win percentage. Unfortunately, this didn’t reveal any obvious signs of clustering due to game type or win percentage.
 
 So, the next thing we tried was moving down another dimension into 2D and performing the same steps; however, we couldn’t make any sense of these two plots either. In the future, I would plot histograms of the different features to see if there are any bimodal distributions. Because we saw some clear clustering using PCA, looking for bimodal distributions could be useful when trying to figure out what is causing this phenomenon.
 
-![pca_charts](images/image8.png) ![pca_chart2](images/image5.png)
+![pca_charts](images/pca.png)
 
 ### Shortcomings in our data
 Since the statistics for each observation are based on end game stats, there are many in-game nuances that cannot be captured in the dataset. For example, skillful outplays against opponents like the gif below would be difficult to express as data.
@@ -145,7 +146,7 @@ For example, a MAE of 0.04 signifies that the average magnitude difference from 
 
 ### Models
 
-**Linear Regression: public score - 0.0445**
+#### Linear Regression: public score - 0.0445
 
 In our modeling process, we wanted to start off with a basic model to have a benchmark for more complex models. We decided to try Linear Regression to see if a simple linear relationship could predict effectively for our problem.
 
@@ -155,20 +156,30 @@ Training on the whole dataset, we were able to get a public score of 0.0445. Alt
 
 ![lin_reg_feats](images/image7.png)
 
-**Random Forest: public score - 0.0430**
+#### Random Forest: public score - 0.0430
 
-Random Forest is able to discover more complex dependencies at the cost of more time for fitting than normal Linear Regression. One issue is that a random forest model can't extrapolate. It makes its decision on the nearest data point in case of outliers.
+After Linear Regression, we decided to try another simple model. We speculated that Random Forest would perform better given that the model does not rely on the assumption that a player’s rank is a linear combination of the inputs. Random Forest is as a result able to discover more complex dependencies at the cost of more time for fitting than normal Linear Regression. This model gave us an improvement, but not much. Generally, bagging decision tree models like this one have been helped by boosting in the past. For a more complex model, we decided we would try XGBoost or LightGBM to see if this would improve our score. Boosting tree models also seem to work well with numerical and continuous numbers, which is entirely what our training set.
 
-**Multilayer Perceptron: public score - 0.0224**
+#### Multilayer Perceptron: public score - 0.0224
 
 Since we had so much data available (~4.5 million rows in the training set), we decided to try building a basic neural network or multilayer perceptron.
+
+We experimentally found that ReLu activation and fully connected layers tended to work well. We also saw that the experimental activation function a2m2l worked well too. Since ReLu is more standard and performance seemed similar, we decided to go with ReLu for our final MLP.
+
+Three hidden layers seemed to work the best for us as well. Originally, we had 28 neurons in each layer, but some tuning revealed that 32 neurons worked a bit better. There are many parameters part of the neural net architecture that can be tuned. Due to the large amount of data, the training time for each version of a neural network took a long time to train. As a result, we were only able to try a few parameters here. In the future, we would like to spend more time trying various parameters and researching how to optimally tune a neural network.
+
+With our tuned neural network, we received a public score of 0.0224. This was a huge improvement! However, we think more tuning could improve the performance. Regardless, the performance of the neural network might be hampered by the fact that most of the variables are numbers and continuous. As a result, this model may not be the best for this problem.
+
+Other neural network approaches we considered were CNNs, RNNs, and LSTMs. Some research showed the CNNs worked well in cases where spatial awareness was important. Since our data was one dimensional and lacked structure, we thought this was not appropriate. RNNs and LSTMs seem to work well for cases where memory or context is important to solving the problem. Since each row was independent of the others and we were not dealing with text or time-series data, this did not seem to be a good case for our problem either.
+
+We also wanted to take a look at what features the MLP valued when making decisions. The below graph shows the feature importances of the six most important features for our MLP. All of the features flagged as important are different than the features marked by Linear Regression. In some sense, this is not surprising because multilayer perceptrons are very different and much more complicated than Linear Regression models. Even in this case, the majority of features deemed important by the MLP were features we constructed. This once again shows that our feature engineering did help our model.
 
 Below are the feature importances for the MLP:
 
 ![MLP_feats](images/image13.png)
 
 
-**LightGBM: public score -  0.0205**
+#### LightGBM: public score -  0.0205
 
 LightGBM was our gradient boosting model of choice for this dataset. We found that this worked best since LGBM creates strong classifiers from many decision trees. The key benefit of LGBM to typical XGBoost is that LGBM uses histogram-based algorithms, which bucket continuous features into discrete bins. During training, splitting on leaves become much faster, improving the time complexity by many fold (From our testing, we found LGBM 7x faster than XGBoost).
 
