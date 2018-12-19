@@ -69,7 +69,7 @@ We also performed PCA on the training data after dropping unnecessary features (
 
 So, the next thing we tried was moving down another dimension into 2D and performing the same steps; however, we couldn’t make any sense of these two plots either. In the future, I would plot histograms of the different features to see if there are any bimodal distributions. Because we saw some clear clustering using PCA, looking for bimodal distributions could be useful when trying to figure out what is causing this phenomenon.
 
-![pca_charts](images/pca.png)
+![pca_charts](images/pca.PNG)
 
 ### Shortcomings in our data
 Since the statistics for each observation are based on end game stats, there are many in-game nuances that cannot be captured in the dataset. For example, skillful outplays against opponents like the gif below would be difficult to express as data.
