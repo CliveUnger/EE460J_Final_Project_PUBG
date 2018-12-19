@@ -3,14 +3,14 @@ In this report, we will show our approach in exploring and predicting final lead
 
 Code Repository: <https://github.com/Yuan-Chang-UT/Data-Science-Lab-Final-Project>
 
-## Context
+### Context
 PlayerUnknown's Battlegrounds (PUBG) is a battle royale survival game with the goal of being the last player standing. Up to 100 players are dropped onto an island empty-handed with a variety of game modes that can allow squads of up to 4 people. In the game, a player can find and use a variety of weapons, items, and vehicles. Players must also avoid the shrinking “circle”, which pushes players closer together on the map.
 
 The team at PUBG has made official game data available for the public to explore. Kaggle collected data made possible through the PUBG Developer API.
 
 Kaggle Competition: <https://www.kaggle.com/c/pubg-finish-placement-prediction>
 
-## Motivation
+### Motivation
 With the growing prevalence of competitive eSports, there is a need for rich user data and analysis for improving skill. By exploring the data, we found valuable insights into the strategies and metrics that yield the best player performance.
 
 **Goal:** Predict final leaderboard placements based on player in-game statistics.
