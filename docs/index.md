@@ -1,3 +1,5 @@
+![header](images/image1.jpg)
+
 ## Introduction
 In this report, we will show our approach in exploring and predicting final leaderboard placements in PlayerUnknown’s Battlegrounds matches. We first give background information on the video game and context for the problem. We do exploratory data analysis. Afterwards, we perform feature engineering, creating more insightful features that better predict the target variable. We try a variety of models (simple to complex) for predictions: Linear Regression, Random Forests, Multilayer Perceptrons, and Gradient Boosting LightGBM. We discuss postprocessing of our data to decrease our error. We also discuss the interesting discoveries we made when solving this problem. Finally, we discuss future steps to improve our models.
 
@@ -30,7 +32,7 @@ This was extracted from a public kernel: <https://www.kaggle.com/chocozzz/how-to
 
 The data also has some issues with missing values and at one point, a data leak occurred where the target variable was predictable directly from the row ID.
 
-![dataset]()
+![dataset](images/image2.png)
 
 ### Outlier Detection & Anomalies
 No dataset is ever 100% clean and this competition is no different.
@@ -53,36 +55,36 @@ Some features like matchId is only useful for feature extraction such as for fin
 ### Exploratory Data Analysis
 The first thing we explored was how common features influenced the win percentage placement (our target variable). Some correlated features that we found were number of boosts and number of heals in addition to others. As shown below by the increasing mean of win percentage placement, we found that kill count was correlated with our target variable, which makes sense because more kills usually means a player is better skilled and will rank closer to the top.
 
-![kills_chart]()
+![kills_chart](images/image3.png)
 
 When trying to identify cheaters, we looked at distributions of some features so we could get a better understanding for what anomalies in the data looked like. For example, most players picked up between zero and eight weapons in a match, as can be seen by the distribution below. However, when we found players that picked up 40+ weapons, we attributed that to them either cheating or playing a custom game. To better confirm if a player was cheating, we would have to look at other features in addition to weapons picked up.
 
-![weapons_chart]()
+![weapons_chart](images/image4.png)
 
 Another interesting finding was the distribution of the match duration, as it is bimodal shown below. We tried to discover what caused this phenomenon, but could not identify any single influence. For example we looked at how different game modes changed the distribution, but it had little effect. We also tried looking at third person vs first person perspective modes in addition to how many players are in a match, but nothing significantly revealed new insight.
 
-![match_duration]()
+![match_duration](images/image15.png)
 
 
 We also performed PCA on the training data after dropping unnecessary features (such as match duration, group id, match id, and match type). It produced some interesting clustering results which we tried to understand by grouping the information. For the graphs with the red, blue, and green dots, we split up the data into squad, duo, and single game modes respectively. For the black to blue color gradient plot, the closer the point is to black, the lower the win percentage, and the closer the point is to blue, the higher the win percentage. Unfortunately, this didn’t reveal any obvious signs of clustering due to game type or win percentage.
 
 So, the next thing we tried was moving down another dimension into 2D and performing the same steps; however, we couldn’t make any sense of these two plots either. In the future, I would plot histograms of the different features to see if there are any bimodal distributions. Because we saw some clear clustering using PCA, looking for bimodal distributions could be useful when trying to figure out what is causing this phenomenon.
 
-![pca_charts]()
+![pca_charts](images/image8.png) ![pca_chart2](images/image5.png)
 
 ### Shortcomings in our data
 Since the statistics for each observation are based on end game stats, there are many in-game nuances that cannot be captured in the dataset. For example, skillful outplays against opponents like the gif below would be difficult to express as data.
 
 In addition, our EDA could be bolstered with additional features that the original PUBG developer API key provides. For example, we can scrape landing positional data and zone positional data, which would be insightful for figuring out pathing strategies. Having the different types of weapons picked up as well as loot positions can be influential factors, especially since players start with no weapons at the beginning of a match.
 
-![funny_gif]()
+![funny_gif](images/image3.gif)
 
 ## Feature Engineering & Preprocessing
 Engineering new features was a primary focus of this project. Experience playing the game definitely guided intuitions for what new features could influence winning.
 
 We started by looking at the different game modes. The dataset contains sixteen different game modes, but all of them are variations of the core three types: squad, duo, solo. As a result, we mapped the sixteen game modes to the core three as shown in the figure below.
 
-![gametypes]()
+![gametypes](images/image9.png)
 
 Next, we looked at adding new features that better capture the strength of a player during a match. We have listed all of the features added and their descriptions:
 
@@ -130,14 +132,14 @@ After adding new features, some of the original features were removed since they
 
 Finally, here is the correlation matrix of the top 10 features that correlate with the target after all of the feature engineering:
 
-![corr_matrix]()
+![corr_matrix](images/image14.png)
 
 ## Base Machine Learning Models
 
 ### Loss Function
 Mean Absolute Error (MAE) measures the average magnitude of the errors in a set of predictions, without considering their direction.
 
-![loss_function]()
+![loss_function](images/image16.png)
 
 For example, a MAE of 0.04 signifies that the average magnitude difference from the prediction to the true value is 0.04. In context of our dataset, this would typically mean that the average error is off by 4 placements. This loss functions provides an appropriate measure of our model prediction accuracy.
 
@@ -151,7 +153,7 @@ Linear Regression becomes inaccurate when many outliers are present in the data,
 
 Training on the whole dataset, we were able to get a public score of 0.0445. Although this model did not perform very well, we still wanted to see what features the model valued when making predictions. From the below chart, we can see that boosts and heals were the most important features. Three of the top six most important features were also created by us in the feature engineering step, reinforcing that our feature engineering was providing value.
 
-![lin_reg_feats]()
+![lin_reg_feats](images/image7.png)
 
 **Random Forest: public score - 0.0430**
 
@@ -163,7 +165,7 @@ Since we had so much data available (~4.5 million rows in the training set), we 
 
 Below are the feature importances for the MLP:
 
-![MLP_feats]()
+![MLP_feats](images/image13.png)
 
 
 **LightGBM: public score -  0.0205**
@@ -172,7 +174,7 @@ LightGBM was our gradient boosting model of choice for this dataset. We found th
 
 To prevent overfitting, we need to found optimal parameters for num_leaves = 31 and bagging_fraction = 0.7. The num_leaves parameter prevents the tree from growing too large and overfitting, since it uses a best-first approach (potentially leading to unbalanced trees). Adding a bagging_fration allows the leaf to split against 70% of randomly sampled data. These parameters help speed up training by adding constraints to the tree growth and reducing the amount of data points used in each iteration.
 
-![LGBM_feats]()
+![LGBM_feats](images/image10.png)
 
 This feature importance graph displays the top 6 features of our boosting model. The top two features - walkDistance and killPlace - make sense. People who have a longer walk distance would be alive longer, which is akin to having a higher win placement percentage. The player’s kill place (kill count leaderboard placement) clearly correlates to final placement; having more kills means having a higher placement. The next 4 features were feature engineered, demonstrating the reliability of these features as measures for performance.
 
@@ -182,7 +184,7 @@ If the data only contains a subset of all players in the match, the correct rank
 By taking the relative ranking of all players in the same match and distributing them evenly between 0 and 1, we improved our score.
 This was extracted from a public kernel: <https://www.kaggle.com/ceshine/a-simple-post-processing-trick-lb-0237-0204>
 
-![post]()
+![post](images/image6.png)
 
 ## Future Steps
 The team approached this PUBG dataset with a focus on exploratory data analysis and feature engineering. Since we had domain knowledge regarding the topic, we could find interesting trends and create better features that represented the data. Given more time, we would ensemble high performing models and do more extensive hyper parameter tuning for better results. We knew given enough time and resources, we would yield a much higher result.
