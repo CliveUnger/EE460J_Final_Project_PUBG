@@ -2,3 +2,6 @@ _site/
 .sass-cache/
 .jekyll-cache/
 .jekyll-metadata
+test_V2.csv
+train_V2.csv
+.ipynb_checkpoints/

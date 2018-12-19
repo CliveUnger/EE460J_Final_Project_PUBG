@@ -3,7 +3,7 @@
 ## Introduction
 In this report, we will show our approach in exploring and predicting final leaderboard placements in PlayerUnknown’s Battlegrounds matches. We first give background information on the video game and context for the problem. We do exploratory data analysis. Afterwards, we perform feature engineering, creating more insightful features that better predict the target variable. We try a variety of models (simple to complex) for predictions: Linear Regression, Random Forests, Multilayer Perceptrons, and Gradient Boosting LightGBM. We discuss postprocessing of our data to decrease our error. We also discuss the interesting discoveries we made when solving this problem. Finally, we discuss future steps to improve our models.
 
-Code Repository: <https://github.com/CliveUnger/EE460J_Final_Project_PUBGt>
+Code Repository: <https://github.com/CliveUnger/EE460J_Final_Project_PUBG>
 
 ### Context
 PlayerUnknown's Battlegrounds (PUBG) is a battle royale survival game with the goal of being the last player standing. Up to 100 players are dropped onto an island empty-handed with a variety of game modes that can allow squads of up to 4 people. In the game, a player can find and use a variety of weapons, items, and vehicles. Players must also avoid the shrinking “circle”, which pushes players closer together on the map.
@@ -63,9 +63,7 @@ When trying to identify cheaters, we looked at distributions of some features so
 
 Another interesting finding was the distribution of the match duration, as it is bimodal shown below. We tried to discover what caused this phenomenon, but could not identify any single influence. For example we looked at how different game modes changed the distribution, but it had little effect. We also tried looking at third person vs first person perspective modes in addition to how many players are in a match, but nothing significantly revealed new insight.
 
-<p align="center">
 ![match_duration](images/image15.png)
-</p>
 
 We also performed PCA on the training data after dropping unnecessary features (such as match duration, group id, match id, and match type). It produced some interesting clustering results which we tried to understand by grouping the information. For the graphs with the red, blue, and green dots, we split up the data into squad, duo, and single game modes respectively. For the black to blue color gradient plot, the closer the point is to black, the lower the win percentage, and the closer the point is to blue, the higher the win percentage. Unfortunately, this didn’t reveal any obvious signs of clustering due to game type or win percentage.
 
@@ -205,13 +203,8 @@ Since the kaggle competition provided a substantial dataset, we decided to use t
 ## Conclusion
 Running different models, we learned that LightGBM and gradient boosting models still typically yield the best results for regression type problems. This follows with the trend that Gradient Boosting wins Kaggle competitions. In addition, we found that creating new features that better represent player metrics improved the overall prediction scores.  Lastly, our models could have been more optimally tuned for better scores; however, given the time constraints and substantial dataset, we decided to focus our efforts of EDA, Feature engineering, and finding interesting qualities in the data.
 
-
-## Reflection
-While interesting, this problem does not ultimately find definite strategies that improve leaderboard placement. We are essentially using the end game statistics to predict an end game target variable. Additionally, many of the explanatory features did not represent any useful strategic or tactical data. For example, walkDistance is correlated to winPlacePerc; however, you can only walk further if you remain in the game longer. Winners don’t necessarily move faster per unit of time they spend in the game.
-
-
 ## References
-We pulled a lot of our inspiration for the public kernels for this competition. Here are some of the kernels that were especially helpful in our learning process:
+We contribute a lot of our inspiration from the public kernels for this competition. Here are some of the kernels that were especially helpful in our learning process:
 
 <https://www.kaggle.com/carlolepelaars/pubg-data-exploration-rf-funny-gifs>
 
